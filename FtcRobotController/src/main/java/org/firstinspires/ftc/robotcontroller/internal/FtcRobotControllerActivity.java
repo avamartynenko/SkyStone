@@ -689,8 +689,6 @@ public class FtcRobotControllerActivity extends Activity
           }
         : null);
     }
-
-    FtcDashboard.attachEventLoop(eventLoop);
   }
 
   private void requestRobotSetup(@Nullable Runnable runOnComplete) {
@@ -715,6 +713,7 @@ public class FtcRobotControllerActivity extends Activity
 
     passReceivedUsbAttachmentsToEventLoop();
     AndroidBoard.showErrorIfUnknownControlHub();
+    FtcDashboard.attachEventLoop(eventLoop);
   }
 
   protected OpModeRegister createOpModeRegister() {

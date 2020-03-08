@@ -6,9 +6,10 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Config
-@Autonomous
+@TeleOp(name="POC: Dashboard Opbiter", group="POC")
 public class OrbitOpMode extends LinearOpMode {
     public static double ORBITAL_FREQUENCY = 0.05;
     public static double SPIN_FREQUENCY = 0.25;
