@@ -49,6 +49,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -63,6 +64,8 @@ import android.widget.TextView;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.google.blocks.ftcrobotcontroller.ProgrammingWebHandlers;
 import com.google.blocks.ftcrobotcontroller.runtime.BlocksOpMode;
+import com.intel.realsense.librealsense.DeviceList;
+import com.intel.realsense.librealsense.DeviceListener;
 import com.qualcomm.ftccommon.ClassManagerFactory;
 import com.qualcomm.ftccommon.FtcAboutActivity;
 import com.qualcomm.ftccommon.FtcEventLoop;
@@ -123,6 +126,10 @@ import org.firstinspires.inspection.RcInspectionActivity;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.intel.realsense.librealsense.RsContext;
+
+import static java.lang.Thread.sleep;
+
 @SuppressWarnings("WeakerAccess")
 public class FtcRobotControllerActivity extends Activity
   {
@@ -170,6 +177,13 @@ public class FtcRobotControllerActivity extends Activity
   private static boolean permissionsValidated = false;
 
   private WifiDirectChannelChanger wifiDirectChannelChanger;
+
+  private RsContext mRsContext;
+
+  // Used to load the 'native-lib' library on application startup.
+  static {
+    System.loadLibrary("native-lib");
+  }
 
   protected class RobotRestarter implements Restarter {
 
@@ -383,7 +397,61 @@ public class FtcRobotControllerActivity extends Activity
       initWifiMute(true);
     }
 
+    Log.i(TAG, "onCreate: Initializing RS Cameras");
+    RsContext.init(getApplicationContext());
+
+    try {
+      // give T265 time to boot
+      sleep(1000);
+    }
+    catch (InterruptedException e) {
+      Log.e(TAG, "onCreate: sleep interrupted!");
+    }
+
+    //Register to notifications regarding RealSense devices attach/detach events via the DeviceListener.
+    mRsContext = new RsContext();
+    mRsContext.setDevicesChangedCallback(new DeviceListener() {
+      @Override
+      public void onDeviceAttach() {
+        onRSDeviceAttach();;
+      }
+
+      @Override
+      public void onDeviceDetach() {
+        onRSDeviceDetach();
+      }
+    });
+
+    onRSDeviceAttach();
     FtcDashboard.start();
+  }
+
+  private void onRSDeviceDetach() {
+    Log.i(TAG, "onRSDeviceDetach()");
+    try {
+      nStopStream();
+      Log.i(TAG, "onRSDeviceDetach: stream stopped");
+    }
+    catch (Exception ex) {
+      Log.e(TAG, "onRSDeviceDetach: failed to stop stream");
+    }
+  }
+
+  private void onRSDeviceAttach() {
+    Log.i(TAG, "onRSDeviceAttach()");
+    try {
+      DeviceList devs= mRsContext.queryDevices();
+      int devCount = devs.getDeviceCount();
+      Log.i(TAG, "onRSDeviceAttach: " + devCount+ " device(s) available");
+      nStartStream();
+      if(devCount>0) {
+        Log.i(TAG, "onRSDeviceAttach: start streaming");
+        //nStartStream();
+      }
+    }
+    catch (Exception ex) {
+      Log.e(TAG, "onRSDeviceAttach: Failed to query list of devices");
+    }
   }
 
   protected UpdateUI createUpdateUI() {
@@ -817,4 +885,28 @@ public class FtcRobotControllerActivity extends Activity
       wifiMuteStateMachine.consumeEvent(WifiMuteEvent.USER_ACTIVITY);
     }
   }
+
+  // TODO: Investigate if native lib can be shared between modules
+  public static void StartStream() {
+    Log.i(TAG, "StartStream()");
+    nStartStream();
+  }
+
+    public static void StopStream() {
+      Log.i(TAG, "StopStream()");
+      nStopStream();
+    }
+
+    public static float[] GetCameraPoseXYYaw() {
+      Log.i(TAG, "GetCameraPoseXYYaw()");
+      return nGetCameraPoseXYYaw();
+    }
+
+    /**
+     * A native method that is implemented by the 'native-lib' native library,
+     * which is packaged with this application.
+     */
+    private static synchronized native void nStartStream();
+    private static synchronized native void nStopStream();
+    private static native float[] nGetCameraPoseXYYaw();
 }

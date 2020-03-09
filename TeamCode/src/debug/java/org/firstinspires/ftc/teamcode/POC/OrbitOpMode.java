@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.POC;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Config
+@Disabled
 @TeleOp(name="POC: Dashboard Opbiter", group="POC")
 public class OrbitOpMode extends LinearOpMode {
     public static double ORBITAL_FREQUENCY = 0.05;
