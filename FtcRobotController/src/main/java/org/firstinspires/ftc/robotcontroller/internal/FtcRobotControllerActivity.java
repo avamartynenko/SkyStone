@@ -31,7 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.robotcontroller.internal;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -42,11 +41,11 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -126,6 +125,7 @@ import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebInfo
 import org.firstinspires.ftc.robotserver.internal.programmingmode.ProgrammingModeManager;
 import org.firstinspires.inspection.RcInspectionActivity;
 
+import java.text.DecimalFormat;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -182,13 +182,47 @@ public class FtcRobotControllerActivity extends Activity
   private WifiDirectChannelChanger wifiDirectChannelChanger;
 
   private RsContext mRsContext;
-  private LinearLayout parentLayout;
-  private TextView mRsStatusTextView;
   private boolean mHasCamera = false;
 
   // Used to load the 'native-lib' library on application startup.
   static {
     System.loadLibrary("native-lib");
+  }
+
+    Handler handler = new Handler();
+    private Runnable periodicUpdate = new Runnable () {
+      @Override
+      public void run() {
+        handler.postDelayed(periodicUpdate, 1000);
+        TextView tv = (TextView) findViewById(R.id.textTrackingCamera);
+        TextView tvMapper = (TextView) findViewById(R.id.textCamMapperStatus);
+        TextView tvTracker = (TextView) findViewById(R.id.textCamTrackerStatus);
+
+        try {
+          float[] poseData = poseData = nGetCameraPoseXYYaw();
+          DecimalFormat df = new DecimalFormat("0.00");
+          String positon = "Camera [X=" + df.format(poseData[0]) + " Y=" + df.format(poseData[1]) + " Yaw=" + df.format(poseData[2]) + "]";
+          tv.setText(positon);
+          tvTracker.setTextColor(getConfidenceColor(poseData[3]));
+          tvMapper.setTextColor(getConfidenceColor(poseData[4]));
+        }
+        catch (Exception ex) {
+          tv.setText(ex.getMessage());
+          Log.e(TAG, "periodicUpdate: Unable to get pose data");
+          return;
+        }
+      }
+    };
+
+  private int getConfidenceColor(float confidence) {
+    if(confidence == 1)
+      return Color.RED;
+    else if(confidence == 2)
+      return Color.YELLOW;
+    else if(confidence == 3)
+      return Color.GREEN;
+    else
+      return Color.MAGENTA;
   }
 
   protected class RobotRestarter implements Restarter {
@@ -403,9 +437,9 @@ public class FtcRobotControllerActivity extends Activity
       initWifiMute(true);
     }
 
-    new Thread(){
-      public void run(){
-        Log.i(TAG, "onCreate: Initializing RS Cameras in separate thread");
+//    new Thread(){
+//      public void run(){
+//        Log.i(TAG, "onCreate: Initializing RS Cameras in separate thread");
         RsContext.init(getApplicationContext());
 
         try {
@@ -434,10 +468,8 @@ public class FtcRobotControllerActivity extends Activity
 
         onRSDeviceAttach();
         updateCameraStatusView();
-      }
-    }.start();
-
-    injectStatusView();
+//      }
+  //  }.start();
 
     FtcDashboard.start();
   }
@@ -445,6 +477,7 @@ public class FtcRobotControllerActivity extends Activity
   private void onRSDeviceDetach() {
     Log.i(TAG, "onRSDeviceDetach()");
     try {
+      handler.removeCallbacks(periodicUpdate);
       nStopStream();
       mHasCamera = false;
       Log.i(TAG, "onRSDeviceDetach: stream stopped");
@@ -460,11 +493,11 @@ public class FtcRobotControllerActivity extends Activity
       DeviceList devs= mRsContext.queryDevices();
       int devCount = devs.getDeviceCount();
       Log.i(TAG, "onRSDeviceAttach: " + devCount+ " device(s) available");
-      nStartStream();
-      mHasCamera = true;
       if(devCount>0) {
+        mHasCamera = true;
         Log.i(TAG, "onRSDeviceAttach: start streaming");
-        //nStartStream();
+        nStartStream();
+        handler.post(periodicUpdate);
       }
     }
     catch (Exception ex) {
@@ -550,6 +583,7 @@ public class FtcRobotControllerActivity extends Activity
 
     RobotLog.cancelWriteLogcatToDisk();
 
+    nStopStream();
     FtcDashboard.stop();
   }
 
@@ -904,64 +938,33 @@ public class FtcRobotControllerActivity extends Activity
     }
   }
 
-    private void injectStatusView() {
-      Activity activity = AppUtil.getInstance().getActivity();
-
-      if (activity == null) return;
-
-      mRsStatusTextView = new TextView(activity);
-      mRsStatusTextView.setTypeface(Typeface.DEFAULT_BOLD);
-      int color = activity.getResources().getColor(R.color.dashboardColor);
-      mRsStatusTextView.setTextColor(color);
-      int horizontalMarginId = activity.getResources().getIdentifier(
-              "activity_horizontal_margin", "dimen", activity.getPackageName());
-      int horizontalMargin = (int) activity.getResources().getDimension(horizontalMarginId);
-      LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-              LinearLayout.LayoutParams.MATCH_PARENT,
-              LinearLayout.LayoutParams.WRAP_CONTENT
-      );
-      params.setMargins(horizontalMargin, 0, horizontalMargin, 0);
-      mRsStatusTextView.setLayoutParams(params);
-
-      int parentLayoutId = activity.getResources().getIdentifier(
-              "entire_screen", "id", activity.getPackageName());
-      parentLayout = activity.findViewById(parentLayoutId);
-      int childCount = parentLayout.getChildCount();
-      int relativeLayoutId = activity.getResources().getIdentifier(
-              "RelativeLayout", "id", activity.getPackageName());
-      int i;
-      for (i = 0; i < childCount; i++) {
-        if (parentLayout.getChildAt(i).getId() == relativeLayoutId) {
-          break;
-        }
-      }
-      final int relativeLayoutIndex = i;
+  private void updateCameraStatusView() {
+    Log.d(TAG, "updateCameraStatusView()");
       AppUtil.getInstance().runOnUiThread(new Runnable() {
+        //@SuppressLint("SetTextI18n")
         @Override
         public void run() {
-          parentLayout.addView(mRsStatusTextView, relativeLayoutIndex);
+          Log.d(TAG, "updateCameraStatusView().run");
+          TextView tv = (TextView) findViewById(R.id.textTrackingCamera);
+          TextView tvMapper = (TextView) findViewById(R.id.textCamMapperStatus);
+          TextView tvTracker = (TextView) findViewById(R.id.textCamTrackerStatus);
+          if (mHasCamera) {
+            tv.setTextColor(Color.BLACK);
+            tv.setText("Tracking camera: attached");
+            tvMapper.setVisibility(View.VISIBLE);
+            tvMapper.setTextColor(Color.RED);
+            tvTracker.setVisibility(View.VISIBLE);
+            tvTracker.setTextColor(Color.RED);
+          }
+          else {
+            tv.setTextColor(Color.RED);
+            tv.setText("Tracking camera: detached");
+            tvMapper.setVisibility(View.INVISIBLE);
+            tvTracker.setVisibility(View.INVISIBLE);
+          }
         }
       });
-    }
-
-    private void updateCameraStatusView() {
-      if (mRsStatusTextView != null) {
-        AppUtil.getInstance().runOnUiThread(new Runnable() {
-          @SuppressLint("SetTextI18n")
-          @Override
-          public void run() {
-            if (mHasCamera) {
-              mRsStatusTextView.setTextColor(Color.BLACK);
-              mRsStatusTextView.setText("Tracking camera: attached");
-            }
-            else {
-              mRsStatusTextView.setTextColor(Color.RED);
-              mRsStatusTextView.setText("Tracking camera: detached");
-            }
-          }
-        });
-      }
-    }
+  }
 
   // TODO: Investigate if native lib can be shared between modules
   public static void StartStream() {

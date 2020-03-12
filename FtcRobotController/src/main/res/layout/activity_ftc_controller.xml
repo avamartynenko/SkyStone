@@ -176,9 +176,47 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       android:id="@+id/textGamepad2"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
+      android:layout_above="@+id/TrackerLayout"
       android:visibility="invisible"
       android:text="" />
+
+    <LinearLayout
+        android:id="@+id/TrackerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <TextView
+          android:id="@+id/textTrackingCamera"
+          android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:layout_alignParentBottom="true"
+          android:layout_toStartOf="@+id/textCamTrackerStatus"
+          android:text="" />
+
+          <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+          android:id="@+id/textCamTrackerStatus"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@+id/textCamMapperStatus"
+          android:layout_alignParentBottom="true"
+          android:paddingRight="16px"
+          android:text="Track" />
+
+        <TextView
+          android:id="@+id/textCamMapperStatus"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          android:layout_alignParentBottom="true"
+          android:text="Map" />
+    </LinearLayout>
 
   </RelativeLayout>
 
