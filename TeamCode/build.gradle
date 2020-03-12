@@ -16,4 +16,5 @@ apply from: '../build.common.gradle'
 
 dependencies {
     implementation 'org.openftc:rev-extensions-2:1.2'
+    implementation 'com.arcrobotics:ftclib:2.0.11'
 }

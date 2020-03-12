@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.robotcontroller.internal;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -40,6 +41,8 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
@@ -179,6 +182,9 @@ public class FtcRobotControllerActivity extends Activity
   private WifiDirectChannelChanger wifiDirectChannelChanger;
 
   private RsContext mRsContext;
+  private LinearLayout parentLayout;
+  private TextView mRsStatusTextView;
+  private boolean mHasCamera = false;
 
   // Used to load the 'native-lib' library on application startup.
   static {
@@ -397,32 +403,42 @@ public class FtcRobotControllerActivity extends Activity
       initWifiMute(true);
     }
 
-    Log.i(TAG, "onCreate: Initializing RS Cameras");
-    RsContext.init(getApplicationContext());
+    new Thread(){
+      public void run(){
+        Log.i(TAG, "onCreate: Initializing RS Cameras in separate thread");
+        RsContext.init(getApplicationContext());
 
-    try {
-      // give T265 time to boot
-      sleep(1000);
-    }
-    catch (InterruptedException e) {
-      Log.e(TAG, "onCreate: sleep interrupted!");
-    }
+        try {
+          // give T265 time to boot
+          sleep(1000);
+        }
+        catch (InterruptedException e) {
+          Log.e(TAG, "onCreate: sleep interrupted!");
+        }
 
-    //Register to notifications regarding RealSense devices attach/detach events via the DeviceListener.
-    mRsContext = new RsContext();
-    mRsContext.setDevicesChangedCallback(new DeviceListener() {
-      @Override
-      public void onDeviceAttach() {
-        onRSDeviceAttach();;
+        //Register to notifications regarding RealSense devices attach/detach events via the DeviceListener.
+        mRsContext = new RsContext();
+        mRsContext.setDevicesChangedCallback(new DeviceListener() {
+          @Override
+          public void onDeviceAttach() {
+            onRSDeviceAttach();
+            updateCameraStatusView();
+          }
+
+          @Override
+          public void onDeviceDetach() {
+            onRSDeviceDetach();
+            updateCameraStatusView();
+          }
+        });
+
+        onRSDeviceAttach();
+        updateCameraStatusView();
       }
+    }.start();
 
-      @Override
-      public void onDeviceDetach() {
-        onRSDeviceDetach();
-      }
-    });
+    injectStatusView();
 
-    onRSDeviceAttach();
     FtcDashboard.start();
   }
 
@@ -430,6 +446,7 @@ public class FtcRobotControllerActivity extends Activity
     Log.i(TAG, "onRSDeviceDetach()");
     try {
       nStopStream();
+      mHasCamera = false;
       Log.i(TAG, "onRSDeviceDetach: stream stopped");
     }
     catch (Exception ex) {
@@ -444,6 +461,7 @@ public class FtcRobotControllerActivity extends Activity
       int devCount = devs.getDeviceCount();
       Log.i(TAG, "onRSDeviceAttach: " + devCount+ " device(s) available");
       nStartStream();
+      mHasCamera = true;
       if(devCount>0) {
         Log.i(TAG, "onRSDeviceAttach: start streaming");
         //nStartStream();
@@ -885,6 +903,65 @@ public class FtcRobotControllerActivity extends Activity
       wifiMuteStateMachine.consumeEvent(WifiMuteEvent.USER_ACTIVITY);
     }
   }
+
+    private void injectStatusView() {
+      Activity activity = AppUtil.getInstance().getActivity();
+
+      if (activity == null) return;
+
+      mRsStatusTextView = new TextView(activity);
+      mRsStatusTextView.setTypeface(Typeface.DEFAULT_BOLD);
+      int color = activity.getResources().getColor(R.color.dashboardColor);
+      mRsStatusTextView.setTextColor(color);
+      int horizontalMarginId = activity.getResources().getIdentifier(
+              "activity_horizontal_margin", "dimen", activity.getPackageName());
+      int horizontalMargin = (int) activity.getResources().getDimension(horizontalMarginId);
+      LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+              LinearLayout.LayoutParams.MATCH_PARENT,
+              LinearLayout.LayoutParams.WRAP_CONTENT
+      );
+      params.setMargins(horizontalMargin, 0, horizontalMargin, 0);
+      mRsStatusTextView.setLayoutParams(params);
+
+      int parentLayoutId = activity.getResources().getIdentifier(
+              "entire_screen", "id", activity.getPackageName());
+      parentLayout = activity.findViewById(parentLayoutId);
+      int childCount = parentLayout.getChildCount();
+      int relativeLayoutId = activity.getResources().getIdentifier(
+              "RelativeLayout", "id", activity.getPackageName());
+      int i;
+      for (i = 0; i < childCount; i++) {
+        if (parentLayout.getChildAt(i).getId() == relativeLayoutId) {
+          break;
+        }
+      }
+      final int relativeLayoutIndex = i;
+      AppUtil.getInstance().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          parentLayout.addView(mRsStatusTextView, relativeLayoutIndex);
+        }
+      });
+    }
+
+    private void updateCameraStatusView() {
+      if (mRsStatusTextView != null) {
+        AppUtil.getInstance().runOnUiThread(new Runnable() {
+          @SuppressLint("SetTextI18n")
+          @Override
+          public void run() {
+            if (mHasCamera) {
+              mRsStatusTextView.setTextColor(Color.BLACK);
+              mRsStatusTextView.setText("Tracking camera: attached");
+            }
+            else {
+              mRsStatusTextView.setTextColor(Color.RED);
+              mRsStatusTextView.setText("Tracking camera: detached");
+            }
+          }
+        });
+      }
+    }
 
   // TODO: Investigate if native lib can be shared between modules
   public static void StartStream() {

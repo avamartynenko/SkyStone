@@ -37,6 +37,12 @@ public class T265TestOpMode extends LinearOpMode {
         sleep(1000);*
 
         localizer.startStream();*/
+
+        float[] location = localizer.refreshPoseData();
+
+        telemetry.addData("X", location[0]);
+        telemetry.addData("Y", location[1]);
+        telemetry.addData("Yaw", location[2]);
         waitForStart();
 
         if (isStopRequested()) return;
@@ -52,7 +58,7 @@ public class T265TestOpMode extends LinearOpMode {
             double time = getRuntime();
             //Log.i(TAG, "Sending request to get pose data... time=" + time);
             //et.reset();
-            float[] location = localizer.refreshPoseData();
+            location = localizer.refreshPoseData();
             /*double readTime = et.milliseconds();
             totalReadTime += readTime;
             if(readTime > maxRead) maxRead = readTime;
@@ -64,6 +70,11 @@ public class T265TestOpMode extends LinearOpMode {
 
             /*double bx = ORBITAL_RADIUS * Math.cos(2 * Math.PI * ORBITAL_FREQUENCY * time);
             double by = ORBITAL_RADIUS * Math.sin(2 * Math.PI * ORBITAL_FREQUENCY * time);*/
+
+            telemetry.addData("X", location[0]);
+            telemetry.addData("Y", location[1]);
+            telemetry.addData("Yaw", location[2]);
+            telemetry.update();
 
             double bx = location[0];
             double by = location[1];
@@ -80,9 +91,9 @@ public class T265TestOpMode extends LinearOpMode {
 
             TelemetryPacket packet = new TelemetryPacket();
             packet.fieldOverlay()
-                    /*.setStrokeWidth(1)
+                    .setStrokeWidth(1)
                     .setStroke("goldenrod")
-                    .strokeCircle(bx, by, ORBITAL_RADIUS)*/
+                    .strokeCircle(bx, by, ORBITAL_RADIUS)
                     .setFill("black")
                     .fillPolygon(bxPoints, byPoints);
             dashboard.sendTelemetryPacket(packet);

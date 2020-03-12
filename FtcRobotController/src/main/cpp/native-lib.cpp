@@ -231,9 +231,32 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
     while (yaw > M_PI)  yaw -= 2 * M_PI;
 
     jfloatArray result;
+
+    /*
+     * https://github.com/IntelRealSense/librealsense/blob/master/doc/t265.md
+     * https://github.com/IntelRealSense/librealsense/raw/master/doc/img/T265_sensor_extrinsics.png
+     * Positive X direction is towards right imager
+     * Positive Y direction is upwards toward the top of the device
+     * Positive Z direction is inwards toward the back of the device
+     *
+     * Assuming that camera is mounted on the front of the robot and faces
+     * in "forward" direction of the robot:
+     *
+     *  Device -X -> robot's +Y
+     *  Device  Y -> ignored (robot's height)
+     *  Device -Z -> robot's +X
+     *
+     *
+     *  |Y      _L__
+     *  |    B |____| F
+     *  |        R
+     *  |______________X
+     *
+     *
+     */
     float pose_data_array[] = {
             -pose_data.translation.z * meters2inches, // camera's z matches robot's x
-            pose_data.translation.x * meters2inches, // camera's z matches robot's y
+            -pose_data.translation.x * meters2inches, // camera's x matches robot's y
             yaw,
             // actual values are unsigned int, we will use float to simplify passing data back and forth
             (float) pose_data.tracker_confidence,
@@ -249,4 +272,3 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
     env->SetFloatArrayRegion(result, 0, pose_elements, pose_data_array);
     return result;
 }
-
