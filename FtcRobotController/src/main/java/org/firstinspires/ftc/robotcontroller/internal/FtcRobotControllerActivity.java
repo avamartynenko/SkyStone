@@ -47,6 +47,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -184,12 +185,16 @@ public class FtcRobotControllerActivity extends Activity
   private RsContext mRsContext;
   private boolean mHasCamera = false;
 
+  private TextView mtvStatus;
+  private TextView mtvMapper;
+  private TextView mtvTracker;
+
   // Used to load the 'native-lib' library on application startup.
   static {
     System.loadLibrary("native-lib");
   }
 
-    Handler handler = new Handler();
+  Handler handler;
     private Runnable periodicUpdate = new Runnable () {
       @Override
       public void run() {
@@ -199,10 +204,10 @@ public class FtcRobotControllerActivity extends Activity
         TextView tvTracker = (TextView) findViewById(R.id.textCamTrackerStatus);
 
         try {
-          float[] poseData = poseData = nGetCameraPoseXYYaw();
+          float[] poseData = nGetCameraPoseXYYaw();
           DecimalFormat df = new DecimalFormat("0.00");
-          String positon = "Camera [X=" + df.format(poseData[0]) + " Y=" + df.format(poseData[1]) + " Yaw=" + df.format(poseData[2]) + "]";
-          tv.setText(positon);
+          String position = "[X=" + df.format(poseData[0]) + " Y=" + df.format(poseData[1]) + " Yaw=" + df.format(poseData[2]) + "]";
+          tv.setText(position);
           tvTracker.setTextColor(getConfidenceColor(poseData[3]));
           tvMapper.setTextColor(getConfidenceColor(poseData[4]));
         }
@@ -398,6 +403,8 @@ public class FtcRobotControllerActivity extends Activity
       cfgFileMgr.setActiveConfig(false, configFile);
     }
 
+    handler = new Handler(Looper.getMainLooper());
+
     textDeviceName = (TextView) findViewById(R.id.textDeviceName);
     textNetworkConnectionStatus = (TextView) findViewById(R.id.textNetworkConnectionStatus);
     textRobotStatus = (TextView) findViewById(R.id.textRobotStatus);
@@ -408,6 +415,10 @@ public class FtcRobotControllerActivity extends Activity
     immersion = new ImmersiveMode(getWindow().getDecorView());
     dimmer = new Dimmer(this);
     dimmer.longBright();
+
+    mtvStatus = (TextView) findViewById(R.id.textTrackingCamera);
+    mtvMapper = (TextView) findViewById(R.id.textCamMapperStatus);
+    mtvTracker = (TextView) findViewById(R.id.textCamTrackerStatus);
 
     programmingModeManager = new ProgrammingModeManager();
     programmingModeManager.register(new ProgrammingWebHandlers());
@@ -548,6 +559,9 @@ public class FtcRobotControllerActivity extends Activity
   protected void onResume() {
     super.onResume();
     RobotLog.vv(TAG, "onResume()");
+
+    if(mHasCamera)
+      handler.post(periodicUpdate);
   }
 
   @Override
@@ -562,6 +576,9 @@ public class FtcRobotControllerActivity extends Activity
     // called surprisingly often. So, we don't actually do much here.
     super.onStop();
     RobotLog.vv(TAG, "onStop()");
+
+    if(mHasCamera)
+      handler.removeCallbacks(periodicUpdate);
   }
 
   @Override
@@ -941,26 +958,22 @@ public class FtcRobotControllerActivity extends Activity
   private void updateCameraStatusView() {
     Log.d(TAG, "updateCameraStatusView()");
       AppUtil.getInstance().runOnUiThread(new Runnable() {
-        //@SuppressLint("SetTextI18n")
         @Override
         public void run() {
           Log.d(TAG, "updateCameraStatusView().run");
-          TextView tv = (TextView) findViewById(R.id.textTrackingCamera);
-          TextView tvMapper = (TextView) findViewById(R.id.textCamMapperStatus);
-          TextView tvTracker = (TextView) findViewById(R.id.textCamTrackerStatus);
           if (mHasCamera) {
-            tv.setTextColor(Color.BLACK);
-            tv.setText("Tracking camera: attached");
-            tvMapper.setVisibility(View.VISIBLE);
-            tvMapper.setTextColor(Color.RED);
-            tvTracker.setVisibility(View.VISIBLE);
-            tvTracker.setTextColor(Color.RED);
+            mtvStatus.setTextColor(Color.BLACK);
+            mtvStatus.setText("Tracking camera: attached");
+            mtvMapper.setVisibility(View.VISIBLE);
+            mtvMapper.setTextColor(Color.RED);
+            mtvTracker.setVisibility(View.VISIBLE);
+            mtvTracker.setTextColor(Color.RED);
           }
           else {
-            tv.setTextColor(Color.RED);
-            tv.setText("Tracking camera: detached");
-            tvMapper.setVisibility(View.INVISIBLE);
-            tvTracker.setVisibility(View.INVISIBLE);
+            mtvStatus.setTextColor(Color.RED);
+            mtvStatus.setText("Tracking camera: detached");
+            mtvMapper.setVisibility(View.INVISIBLE);
+            mtvTracker.setVisibility(View.INVISIBLE);
           }
         }
       });

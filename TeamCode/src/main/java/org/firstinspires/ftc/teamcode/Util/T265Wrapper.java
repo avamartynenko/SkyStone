@@ -13,6 +13,7 @@ public class T265Wrapper {
     }
 
     public float[] refreshPoseData() {
+        // read time averages around 5ms, with rare spikes up to 12ms
         cameraPose = FtcRobotControllerActivity.GetCameraPoseXYYaw();
         return cameraPose;
     }
@@ -27,5 +28,39 @@ public class T265Wrapper {
 
     public float getYaw() {
         return cameraPose[2];
+    }
+
+    public int getTrackerConfidence() {
+        return (int) cameraPose[3];
+    }
+
+    public int getMapperConfidence() {
+        return (int) cameraPose[4];
+    }
+
+    public String getTrackerConfidenceText() {
+        switch (getTrackerConfidence()) {
+            case 3:
+                return "High";
+            case 2:
+                return "Medium";
+            case 1:
+                return "Low";
+            default:
+                return "Fail";
+        }
+    }
+
+    public String getMapperConfidenceText() {
+        switch (getMapperConfidence()) {
+            case 3:
+                return "High";
+            case 2:
+                return "Medium";
+            case 1:
+                return "Low";
+            default:
+                return "Fail";
+        }
     }
 }

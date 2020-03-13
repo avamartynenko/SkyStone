@@ -33,11 +33,7 @@ public class T265TestOpMode extends LinearOpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();
         T265Wrapper localizer = new T265Wrapper();
-        /*localizer.startStream();
-        sleep(1000);*
-
-        localizer.startStream();*/
-
+        
         float[] location = localizer.refreshPoseData();
 
         telemetry.addData("X", location[0]);
@@ -71,9 +67,10 @@ public class T265TestOpMode extends LinearOpMode {
             /*double bx = ORBITAL_RADIUS * Math.cos(2 * Math.PI * ORBITAL_FREQUENCY * time);
             double by = ORBITAL_RADIUS * Math.sin(2 * Math.PI * ORBITAL_FREQUENCY * time);*/
 
-            telemetry.addData("X", location[0]);
-            telemetry.addData("Y", location[1]);
-            telemetry.addData("Yaw", location[2]);
+            telemetry.addData("X", "%.2f", location[0]);
+            telemetry.addData("Y", "%.2f", location[1]);
+            telemetry.addData("Yaw", "%.2f", location[2]);
+            telemetry.addData("Tracker Confidence", localizer.getTrackerConfidenceText());
             telemetry.update();
 
             double bx = location[0];

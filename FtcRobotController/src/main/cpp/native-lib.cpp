@@ -92,7 +92,7 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
     rs2_pose pose_data;
 
     {
-        std::lock_guard<std::mutex> lock(g_data_mutex);
+//        std::lock_guard<std::mutex> lock(g_data_mutex);
         pose_data = f.as<rs2::pose_frame>().get_pose_data();
     }
 
@@ -171,7 +171,7 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
     rs2_pose pose_data;
 
     {
-        std::lock_guard<std::mutex> lock(g_data_mutex);
+//        std::lock_guard<std::mutex> lock(g_data_mutex);
         pose_data = f.as<rs2::pose_frame>().get_pose_data();
     }
 
@@ -222,7 +222,7 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
     rs2_pose pose_data;
 
     {
-        std::lock_guard<std::mutex> lock(g_data_mutex);
+//        std::lock_guard<std::mutex> lock(g_data_mutex);
         pose_data = f.as<rs2::pose_frame>().get_pose_data();
     }
 
