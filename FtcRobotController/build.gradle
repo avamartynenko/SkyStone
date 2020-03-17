@@ -30,11 +30,22 @@ android {
             path "CMakeLists.txt"
         }
     }
+
+    sourceSets {
+        release {
+            dependencies {
+                implementation fileTree(dir: '../libs/librealsense/release', include: ['*.aar', '*.jar'], exclude: [])
+            }
+        }
+        debug {
+            dependencies {
+                implementation fileTree(dir: '../libs/librealsense/debug', include: ['*.aar', '*.jar'], exclude: [])
+            }
+        }
+    }
 }
 
-dependencies {
-    implementation fileTree(dir: '../libs/librealsense', include: ['*.aar', '*.jar'], exclude: [])
-}
+
 
 repositories {
     flatDir {
@@ -63,7 +74,7 @@ task extractHeaders(type: Sync) {
 
 task extractSo() {
     doLast {
-        ConfigurableFileTree tree = fileTree(dir: '../libs/librealsense/jniLibs', include: '**/*.zip')
+        ConfigurableFileTree tree = fileTree(dir: '../libs/librealsense/*/jniLibs', include: '**/*.zip')
         tree.each { file ->
             copy {
                 from(zipTree(file.canonicalFile))
