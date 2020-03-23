@@ -15,54 +15,54 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ServoTest extends LinearOpMode {
 
     @Override public void runOpMode() {
+        waitForStart();
 
-        while(!opModeIsActive()) {
-        }
+        if(isStopRequested())
+            return;
 
-        //waitForStart();
         while(opModeIsActive()) {
 
-            CRServo crServo;
-            String crServos[] = {"dropServo4", "dropServo3", "collectServo4", "collectServo3"};
-            for(String servo : crServos) {
-                crServo = hardwareMap.get(CRServo.class, servo);
-
-                telemetry.addLine(servo + " set power to .9");
+            for(CRServo crServo : hardwareMap.getAll(CRServo.class)) {
+                telemetry.addLine(crServo.getDeviceName() + " set power to .75");
                 telemetry.update();
-                crServo.setPower(.9);
-                sleep(500);
+                crServo.setPower(.75);
+                sleep(3000);
 
-                telemetry.addLine(servo + " set power to -.9");
-                telemetry.update();
-                crServo.setPower(-.9);
-                sleep(500);
-
-                telemetry.addLine(servo + " stop");
+                telemetry.addLine(crServo.getDeviceName() + " set power to 0");
                 telemetry.update();
                 crServo.setPower(0);
-                sleep(250);
+                sleep(3000);
+
+                telemetry.addLine(crServo.getDeviceName() + " set power to -.75");
+                telemetry.update();
+                crServo.setPower(-.75);
+                sleep(3000);
 
                 crServo.resetDeviceConfigurationForOpMode();
-                crServo.close();
             }
 
-            String simpleServos[] = {"twister", "grabber", "hookRight", "hookLeft"};
+            String simpleServos[] = { "dropServo3", "dropServo4", "collectServo4", "collectServo3"};// {/*"twister", "grabber",*/  "hookLeft", "hookRight"};
             Servo simpleServo;
-            for(String servo : simpleServos) {
+            if(true) for(String servo : simpleServos) {
                 simpleServo = hardwareMap.get(Servo.class, servo);
 
-                telemetry.addLine(servo + " move to .9");
+                telemetry.addLine(servo + " move to .6");
                 telemetry.update();
-                simpleServo.setPosition(.9);
-                sleep(500);
+                simpleServo.setPosition(.6);
+                sleep(3000);
 
-                telemetry.addLine(servo + " move to .1");
+                telemetry.addLine(servo + " move to .5");
                 telemetry.update();
-                simpleServo.setPosition(.1);
-                sleep(500);
+                simpleServo.setPosition(.5);
+                sleep(3000);
+
+                telemetry.addLine(" Wait for next...");
+                telemetry.update();
+
+                sleep(5000);
 
                 simpleServo.resetDeviceConfigurationForOpMode();
-                simpleServo.close();
+//                simpleServo.close();
             }
         }
     }
