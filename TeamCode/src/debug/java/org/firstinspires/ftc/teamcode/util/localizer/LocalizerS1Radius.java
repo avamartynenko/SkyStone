@@ -4,6 +4,7 @@ import android.graphics.PointF;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,11 +12,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Util.T265Wrapper;
 
 /**
+ * Use only with robots which can rotate around its center (not skyler)
  * LinearOpMode to measure distance from rotot center to camera reference module
- * This value is used in later steps to calculate cameras offset
+ * This value is used in later steps to calculate cameras offset*
  */
 
 @Config
+@Disabled
 @TeleOp(name="Util: Localizer - Step 1 - Radius", group ="Util")
 public class LocalizerS1Radius extends LinearOpMode {
     // time to sleep between measurements
@@ -32,11 +35,20 @@ public class LocalizerS1Radius extends LinearOpMode {
         DcMotor bL = hardwareMap.get(DcMotor.class, "backLeft");
         DcMotor bR = hardwareMap.get(DcMotor.class, "backRight");
 
+        fL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        fR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         T265Wrapper localizer = new T265Wrapper();
         float location[];
 
         while(!opModeIsActive()) {
             localizer.refreshPoseData();
+
+            telemetry.addData("X", "%.01f", (float) localizer.getX());
+            telemetry.addData("Y", "%.01f", (float) localizer.getY());
+
             telemetry.addLine("Move robot around with your hands to reach High tracker confidence");
             telemetry.addData("Tracker Confidence", localizer.getTrackerConfidenceText());
             telemetry.update();
@@ -48,6 +60,7 @@ public class LocalizerS1Radius extends LinearOpMode {
         PointF points[] = new PointF[3];
 
         while(opModeIsActive()) {
+
             fL.setPower(rotationPower);
             fR.setPower(rotationPower);
             bL.setPower(rotationPower);
@@ -55,6 +68,8 @@ public class LocalizerS1Radius extends LinearOpMode {
 
             sleep(measureInterval);
             localizer.refreshPoseData();
+            telemetry.addData("X", "%.01f", (float) localizer.getX());
+            telemetry.addData("Y", "%.01f", (float) localizer.getY());
 
             points[0] = points[1];
             points[1] = points[2];
@@ -77,8 +92,9 @@ public class LocalizerS1Radius extends LinearOpMode {
 
     // https://www.geeksforgeeks.org/equation-of-circle-when-three-points-on-the-circle-are-given/
     static float calculateRadius(PointF[] points) {
-        float x1 = points[0].x, x2 = points[1].x, x3 = points[2].x,
-                y1 = points[0].y, y2 = points[1].y, y3 = points[3].y;
+        float   x1 = points[0].x, x2 = points[1].x, x3 = points[2].x,
+                y1 = points[0].y, y2 = points[1].y, y3 = points[2].y;
+
         float x12 = x1 - x2;
         float x13 = x1 - x3;
 
