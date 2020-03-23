@@ -39,9 +39,16 @@ public class T265TestOpMode extends LinearOpMode {
         telemetry.addData("X", location[0]);
         telemetry.addData("Y", location[1]);
         telemetry.addData("Yaw", location[2]);
+
         waitForStart();
 
-        if (isStopRequested()) return;
+        if (isStopRequested())
+            return;
+
+        localizer.stopStream();
+        sleep(500);
+        localizer.startStream();
+        sleep(500);
 
         ElapsedTime et = new ElapsedTime();
         double minRead = 1000;
