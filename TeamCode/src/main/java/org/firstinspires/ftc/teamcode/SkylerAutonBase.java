@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.hardware.motors.MotorImpl;
 import com.arcrobotics.ftclib.hardware.motors.MotorImplEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -33,18 +32,17 @@ public class SkylerAutonBase extends LinearOpMode {
         MecanumDrive dt = new MecanumDrive(false, fL, fR, bL, bR);
 
         float location[] = localizer.refreshPoseData();
-        float startX = localizer.getX();
-        float startY = localizer.getY();
+        float startX = localizer.getCameraX();
+        float startY = localizer.getCameraY();
 
-        packet.put("x", localizer.getX() - startX);
-        packet.put("y", localizer.getY() - startY);
+        packet.put("x", localizer.getCameraX() - startX);
+        packet.put("y", localizer.getCameraY() - startY);
         dashboard.sendTelemetryPacket(packet);
 
         waitForStart();
 
         if (isStopRequested()) return;
         ElapsedTime et = new ElapsedTime();
-
 
         while (opModeIsActive()) {
             while (/*et.milliseconds() < 1000*/ location[0] - startX < 50) {

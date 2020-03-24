@@ -7,6 +7,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+/*
+ * Test util mode to measure robot's dimentions
+ * Instructions:
+ * Step 1: turn robot on and move around until it reaches high tracking confidence
+ * Step 2: restart op mode to reset camera location to 0, rotate robot around its center
+ * until if faces opposite direction. write down camera x and y. repeat step several times to get
+ * average measurement, this will give you X and Y offset (doubled) from robot center to camera
+ *
+ */
+
 @Config
 @TeleOp(name="Util: Camera Position", group="Util")
 public class T265TestOpMode extends LinearOpMode {
@@ -29,16 +39,18 @@ public class T265TestOpMode extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode()  {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();
         T265Wrapper localizer = new T265Wrapper();
         
         float[] location = localizer.refreshPoseData();
 
-        telemetry.addData("X", location[0]);
-        telemetry.addData("Y", location[1]);
-        telemetry.addData("Yaw", location[2]);
+        telemetry.addData("CameraX", location[T265Wrapper.ixX]);
+        telemetry.addData("CameraY", location[T265Wrapper.ixY]);
+        telemetry.addData("RobotX", localizer.getRobotX());
+        telemetry.addData("RobotY", localizer.getRobotY());
+        telemetry.addData("Yaw", location[T265Wrapper.ixYaw]);
 
         waitForStart();
 
@@ -46,37 +58,23 @@ public class T265TestOpMode extends LinearOpMode {
             return;
 
         localizer.stopStream();
-        sleep(500);
+        sleep(250);
         localizer.startStream();
-        sleep(500);
-
-        ElapsedTime et = new ElapsedTime();
-        double minRead = 1000;
-        double maxRead = 0;
-        long loopNumber = 0;
-        double totalReadTime = 0;
+        sleep(250);
 
         while (opModeIsActive()) {
-            loopNumber ++;
-            double time = getRuntime();
-            //Log.i(TAG, "Sending request to get pose data... time=" + time);
-            //et.reset();
             location = localizer.refreshPoseData();
-            /*double readTime = et.milliseconds();
-            totalReadTime += readTime;
-            if(readTime > maxRead) maxRead = readTime;
-            if(readTime < minRead) minRead = readTime;
-            telemetry.addData("maxRead", maxRead);
-            telemetry.addData("minRead", minRead);
-            telemetry.addData("avgRead", totalReadTime/loopNumber);
-            telemetry.update();*/
-
+            
             /*double bx = ORBITAL_RADIUS * Math.cos(2 * Math.PI * ORBITAL_FREQUENCY * time);
             double by = ORBITAL_RADIUS * Math.sin(2 * Math.PI * ORBITAL_FREQUENCY * time);*/
 
-            telemetry.addData("X", "%.2f", location[0]);
-            telemetry.addData("Y", "%.2f", location[1]);
-            telemetry.addData("Yaw", "%.2f", location[2]);
+            telemetry.addData("CameraX", "%.2f", location[T265Wrapper.ixX]);
+            telemetry.addData("CameraY", "%.2f", location[T265Wrapper.ixY]);
+            telemetry.addData("RobotX", "%.2f", localizer.getRobotX());
+            telemetry.addData("RobotY", "%.2f", localizer.getRobotY());
+
+            telemetry.addData("Yaw", "%.2f", location[T265Wrapper.ixYaw]);
+
             telemetry.addData("Tracker Confidence", localizer.getTrackerConfidenceText());
             telemetry.update();
 

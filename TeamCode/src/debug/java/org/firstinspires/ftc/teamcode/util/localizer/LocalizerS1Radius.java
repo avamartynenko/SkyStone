@@ -46,8 +46,8 @@ public class LocalizerS1Radius extends LinearOpMode {
         while(!opModeIsActive()) {
             localizer.refreshPoseData();
 
-            telemetry.addData("X", "%.01f", (float) localizer.getX());
-            telemetry.addData("Y", "%.01f", (float) localizer.getY());
+            telemetry.addData("X", "%.01f", (float) localizer.getCameraX());
+            telemetry.addData("Y", "%.01f", (float) localizer.getCameraY());
 
             telemetry.addLine("Move robot around with your hands to reach High tracker confidence");
             telemetry.addData("Tracker Confidence", localizer.getTrackerConfidenceText());
@@ -68,12 +68,12 @@ public class LocalizerS1Radius extends LinearOpMode {
 
             sleep(measureInterval);
             localizer.refreshPoseData();
-            telemetry.addData("X", "%.01f", (float) localizer.getX());
-            telemetry.addData("Y", "%.01f", (float) localizer.getY());
+            telemetry.addData("X", "%.01f", (float) localizer.getCameraX());
+            telemetry.addData("Y", "%.01f", (float) localizer.getCameraY());
 
             points[0] = points[1];
             points[1] = points[2];
-            points[2] = new PointF(localizer.getX(), localizer.getY());
+            points[2] = new PointF(localizer.getCameraX(), localizer.getCameraY());
 
             float radius = 0;
 

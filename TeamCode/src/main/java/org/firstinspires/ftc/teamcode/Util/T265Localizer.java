@@ -12,7 +12,7 @@ public class T265Localizer implements Localizer {
     @Override
     public void update() {
         localizer.refreshPoseData();
-        _poseEstimate = new Pose2d(localizer.getX(), localizer.getY(), localizer.getYaw());
+        _poseEstimate = new Pose2d(localizer.getRobotX(), localizer.getRobotY(), localizer.getYaw());
     }
 
     @Override
