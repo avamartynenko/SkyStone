@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Util.T265Wrapper;
+import org.firstinspires.ftc.teamcode.util.T265Wrapper;
 
 @Config
 @Autonomous(name="POC: Drive to XY test", group="Util")
