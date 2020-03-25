@@ -1,0 +1,88 @@
+package org.firstinspires.ftc.teamcode.util;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+
+import org.firstinspires.ftc.teamcode.ArmEx;
+
+import static org.firstinspires.ftc.teamcode.ArmEx.ChoiceOfArm.Back;
+import static org.firstinspires.ftc.teamcode.ArmEx.ChoiceOfArm.Front;
+import static org.firstinspires.ftc.teamcode.ArmEx.CollectServoPosition.Grab;
+import static org.firstinspires.ftc.teamcode.ArmEx.CollectServoPosition.Release;
+import static org.firstinspires.ftc.teamcode.ArmEx.DropServoPosition.Down;
+import static org.firstinspires.ftc.teamcode.ArmEx.DropServoPosition.MidHigh;
+import static org.firstinspires.ftc.teamcode.ArmEx.DropServoPosition.MidLow;
+import static org.firstinspires.ftc.teamcode.ArmEx.DropServoPosition.Up;
+
+@Config
+@TeleOp(name="Util: Arms Tuner", group ="Util")
+public class ArmsTuner extends LinearOpMode {
+    public static double collectPosition = .4;
+    public static double dropPosition = .4;
+
+    public enum ArmPostion {UpGrab, midLowRelease, DonwGrab, midHighHold};
+
+    public static ArmPostion mb = ArmPostion.UpGrab;
+
+    @Override
+    public void runOpMode() {
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
+
+        ArmEx frontArm = new ArmEx(this, Front);
+        frontArm.moveTo(Up, Grab);
+
+        telemetry.addLine("Arms sent to half point");
+        telemetry.addLine("Press start to power off");
+        telemetry.update();
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        while (opModeIsActive()) {
+
+
+            telemetry.addData("collect", "%.2f", (float) collectPosition);
+            telemetry.addData("drop", "%.2f", (float) dropPosition);
+            telemetry.addData("Battery", "%.2f", (float) getBatteryVoltage());
+
+//            frontArm.moveTo(dropPosition, collectPosition);
+
+            telemetry.addData("Arm Postion:", mb);
+            if(true) switch (mb) {
+                case UpGrab:
+                    frontArm.moveTo(Up, Grab);
+                    break;
+                case midLowRelease:
+                    frontArm.moveTo(MidLow, Release);
+                    break;
+                case DonwGrab:
+                    frontArm.
+                            moveTo(Down, Grab);
+                    break;
+                case midHighHold:
+                    frontArm.moveTo(MidHigh, Grab);
+                    break;
+
+            }
+
+            telemetry.update();
+        }
+    }
+
+    double getBatteryVoltage() {
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        return result;
+    }
+}
