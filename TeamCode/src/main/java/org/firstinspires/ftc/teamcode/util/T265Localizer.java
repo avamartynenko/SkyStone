@@ -14,6 +14,10 @@ public class T265Localizer implements Localizer {
     private Pose2d _poseEstimate = new Pose2d();
     private Pose2d _poseEstimateCorrection = new Pose2d();
 
+    public T265Localizer() {
+        setPoseEstimate(new Pose2d(0, 0,0));
+    }
+
     @Override
     public void update() {
         localizer.refreshPoseData();
