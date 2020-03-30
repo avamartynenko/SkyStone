@@ -21,23 +21,43 @@ public class T265Localizer implements Localizer {
     @Override
     public void update() {
         localizer.refreshPoseData();
-        _poseEstimate = new Pose2d( localizer.getRobotX() + _poseEstimateCorrection.getX(),
-                                    localizer.getRobotY() + _poseEstimateCorrection.getY(),
-                                    localizer.getYaw() + _poseEstimateCorrection.getHeading());
-        Log.d(TAG, String.format("update: pose set to x=%.2f y=%.2f yaw=%.2f", _poseEstimate.getX(), _poseEstimate.getY(), _poseEstimate.getHeading()));
+        //Log.d(TAG, String.format("update: _poseEstimateCorrection ix x=%.2f y=%.2f yaw=%.1f°", _poseEstimateCorrection.getX(), _poseEstimateCorrection.getY(), Math.toDegrees(_poseEstimateCorrection.getHeading())));
+        //Log.d(TAG, String.format("update: localizer robot ix x=%.2f y=%.2f yaw=%.1f°", localizer.getRobotX(), localizer.getRobotY(), Math.toDegrees(localizer.getYaw())));
+
+        float xDiff = localizer.getRobotX() - (float) _poseEstimateCorrection.getX();
+        float yDiff = localizer.getRobotY() - (float) _poseEstimateCorrection.getY();
+        float yawDiff = (float) _poseEstimateCorrection.getHeading();
+
+        //Log.d(TAG, String.format("update: localizer robot ix xDiff=%.2f yDiff=%.2f yawDiff=%.1f°", xDiff, yDiff, Math.toDegrees(yawDiff)));
+
+        _poseEstimate = new Pose2d( xDiff * Math.cos(yawDiff) + yDiff * Math.sin(yawDiff),
+                -xDiff * Math.sin(yawDiff) + yDiff * Math.cos(yawDiff),
+                normalizeYaw(localizer.getYaw() - _poseEstimateCorrection.getHeading()));
+
+        //Log.d(TAG, String.format("update: pose set to x=%.2f y=%.2f yaw=%.1f°", _poseEstimate.getX(), _poseEstimate.getY(), Math.toDegrees(_poseEstimate.getHeading())));
     }
 
     @Override
     public void setPoseEstimate(Pose2d newPose) {
-        // TODO: investigate when/how this method is used and decide if it should be incorporated into pose correction
-        Log.wtf(TAG, String.format("setPoseEstimate: x=%.2f y=%.2f yaw=%.2f", newPose.getX(), newPose.getY(), newPose.getHeading()));
+        if(newPose.getX() != 0 || newPose.getY() != 0 || newPose.getHeading() != 0) {
+            Log.wtf(TAG, String.format("setPoseEstimate: x=%.2f y=%.2f yaw=%.1f°", newPose.getX(), newPose.getY(), newPose.getHeading()));
+            throw new IllegalArgumentException("newPose with non zero arguments is not supported");
+        }
+
         localizer.refreshPoseData();
-        _poseEstimateCorrection = new Pose2d(localizer.getRobotX() - newPose.getX(), localizer.getRobotY() - newPose.getY(), localizer.getYaw() - newPose.getHeading());
+        //Log.d(TAG, String.format("setPoseEstimate: localizer robot ix x=%.2f y=%.2f yaw=%.1f°", localizer.getRobotX(), localizer.getRobotY(), Math.toDegrees(localizer.getYaw())));
+        _poseEstimateCorrection = new Pose2d(localizer.getRobotX(), localizer.getRobotY(), localizer.getYaw());
     }
 
     @Override
     public Pose2d getPoseEstimate() {
-        Log.d(TAG, String.format("getPoseEstimate: x=%.2f y=%.2f yaw=%.2f", _poseEstimate.getX(), _poseEstimate.getY(), _poseEstimate.getHeading()));
+        //Log.d(TAG, String.format("getPoseEstimate: x=%.2f y=%.2f yaw=%.1f°", _poseEstimate.getX(), _poseEstimate.getY(), Math.toDegrees(_poseEstimate.getHeading())));
         return _poseEstimate;
+    }
+
+    private double normalizeYaw(double Yaw) {
+        while(Yaw > Math.PI)
+            Yaw -= Math.PI *2;
+        return Yaw;
     }
 }

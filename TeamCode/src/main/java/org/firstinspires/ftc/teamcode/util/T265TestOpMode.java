@@ -38,7 +38,7 @@ public class T265TestOpMode extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode()  {
+    public void runOpMode()  throws InterruptedException {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();
         T265Wrapper localizer = new T265Wrapper();
@@ -56,10 +56,7 @@ public class T265TestOpMode extends LinearOpMode {
         if (isStopRequested())
             return;
 
-        localizer.stopStream();
-        sleep(250);
-        localizer.startStream();
-        sleep(250);
+        localizer.restart();
 
         while (opModeIsActive()) {
             location = localizer.refreshPoseData();

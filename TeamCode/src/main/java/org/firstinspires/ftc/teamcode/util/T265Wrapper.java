@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
 
 import static java.lang.Math.*;
+import static java.lang.Thread.sleep;
 
 public class T265Wrapper {
     private float[] cameraPose;
@@ -125,8 +126,9 @@ public class T265Wrapper {
         }
     }
 
-    public void restart() {
+    public void restart() throws InterruptedException {
         stopStream();
+        sleep(1000);
         startStream();
     }
 }
