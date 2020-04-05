@@ -149,6 +149,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         setLocalizer(new T265Localizer());
+        getLocalizer().setPoseEstimate(new Pose2d(0, 0, 0));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

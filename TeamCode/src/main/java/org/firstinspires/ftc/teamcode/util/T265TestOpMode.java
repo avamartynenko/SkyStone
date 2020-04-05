@@ -56,7 +56,7 @@ public class T265TestOpMode extends LinearOpMode {
         if (isStopRequested())
             return;
 
-        localizer.restart();
+        // localizer.restart();
 
         while (opModeIsActive()) {
             location = localizer.refreshPoseData();

@@ -31,7 +31,7 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.rpm
  *      regression.
  */
 @Config
-@TeleOp(name="RR Util: 2 DriveFeedforwardTuner", group = "drive")
+@TeleOp(name="RR Util: 2b DriveFeedforwardTuner", group = "drive")
 public class DriveFeedforwardTuner extends LinearOpMode {
     public static final double MAX_POWER = 0.7;
     public static final double DISTANCE = 100;
@@ -198,7 +198,7 @@ public class DriveFeedforwardTuner extends LinearOpMode {
 
             telemetry.clearAll();
             telemetry.addLine("Constant power test complete");
-            telemetry.addLine(Misc.formatInvariant("kA = %.5f (R^2 = %.2f)",
+            telemetry.addLine(Misc.formatInvariant("kA = %.6f (R^2 = %.2f)",
                     accelResult.kA, accelResult.rSquare));
             telemetry.update();
         }

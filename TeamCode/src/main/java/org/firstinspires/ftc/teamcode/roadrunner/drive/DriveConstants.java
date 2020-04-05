@@ -30,8 +30,8 @@ public class DriveConstants {
      * Set the first flag appropriately. If using the built-in motor velocity PID, update
      * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = false;
-    public static final PIDCoefficients MOTOR_VELO_PID = null;
+    public static final boolean RUN_USING_ENCODER = true;
+    public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(20, 5, 1);
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -43,6 +43,15 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.9685;
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
+    // 7.17 (SE = 2.276) @13.8
+    // Effective track width = 5.02 (SE = 0.425)
+    // Effective track width = 4.17 (SE = 0.522) @13.76
+    // Effective track width = 4.18 (SE = 0.522) @13.66
+    // Effective track width = 3.40 (SE = 0.352)
+    // Effective track width = 4.59 (SE = 0.371) @ 12.68
+    // Effective track width = 5.23 (SE = 1.713) @ 12.83
+    // Effective track width = 6.24 (SE = 1.350)
+    // Effective track width = 3.82 (SE = 0.438)
     public static double TRACK_WIDTH = 17; //  (SE = 0.318)
 
     /*
@@ -52,22 +61,22 @@ public class DriveConstants {
      * empirically tuned.
      *
 
-@13.68
-kV = 0.00502, kStatic = 0.25540 (R^2 = 0.48) @ 13.68
-kA = 0.00003 (R^2 = 0.79)
+@13.82 kV = 0.01206, kStatic = 0.10769 (R^2 = 0.95), kA = 0.00005 (R^2 = 0.90)
+@13.98 kV = 0.01168, kStatic = 0.11582 (R^2 = 0.95), kA = 0.00004 (R^2 = 0.79)
+@14.12 kV = 0.01219, kStatic = 0.09977 (R^2 = 0.95), kA = 0.00004 (R^2 = 0.89)
+@14.16 kV = 0.01129, kStatic = 0.12059 (R^2 = 0.93), kA = 0.00004 (R^2 = 0.89)
+@14.16 kV = 0.01189, kStatic = 0.10821 (R^2 = 0.95), kA = 0.00007 (R^2 = 0.63)
+@14.35 kV = 0.01216, kStatic = 0.10086 (R^2 = 0.95), kA = 0.00005 (R^2 = 0.87)
 
-@13.8
-kV = 0.00478, kStatic = 0.26525 (R^2 = 0.47) @ 13.8
-kA = 0.00002 (R^2 = 0.83)
-
-@14.15
-kV = 0.00639, kStatic = 0.22286 (R^2 = 0.61)
-kA = 0.00002 (R^2 = 0.89)
      */
     // tested at 13.4
-    public static double kV = 0.00550;// / rpmToVelocity(MAX_RPM);
-    public static double kA = 0.000025; // average between tested at 14.15 and 13.7
-    public static double kStatic = 0.24; // @ 14.1
+/*    public static double kV = 0.00550;
+    public static double kA = 0.000045;
+    public static double kStatic = 0.24; // @ 14.1*/
+
+    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
+    public static double kA = 0;
+    public static double kStatic = 0;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -76,10 +85,14 @@ kA = 0.00002 (R^2 = 0.89)
      * small and gradually increase them later after everything is working. The velocity and
      * acceleration values are required, and the jerk values are optional (setting a jerk of 0.0
      * forces acceleration-limited profiling).
+     *
+     * SM: we wil run robot at 100% of actual capabilities
+     * vaxVel = maxAccel = MAX_RPM * WHELL_RADIUS * Diameter / 60 (assuming in/s and in/s^2)
+     * TODO: find falues for maxJerk and maxAnglJerk
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            30.0, 30.0, 0.0,
-            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
+            45.0, 45.0, 2.0,
+            Math.toRadians(180.0), Math.toRadians(180.0), 2.0
     );
 
 
