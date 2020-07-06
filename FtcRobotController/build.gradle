@@ -60,7 +60,7 @@ task extractHeaders(type: Sync) {
 
 task extractSo() {
     doLast {
-        ConfigurableFileTree tree = fileTree(dir: '../libs/librealsense/jniLibs', include: '**/*.zip')
+        ConfigurableFileTree tree = fileTree(dir: '../librealsense/jniLibs', include: '**/*.zip')
         tree.each { file ->
             copy {
                 from(zipTree(file.canonicalFile))
