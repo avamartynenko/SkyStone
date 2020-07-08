@@ -18,12 +18,12 @@ static const float meters2inches = 39.3701;
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,     TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,    TAG, __VA_ARGS__)
 
+//rs2::context ctx;
+
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_org__realsense_1native_1example_MainActivity_nGetLibrealsenseVersionFromJNI(JNIEnv *env, jclass type) {
+Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_nGetLibrealsenseVersionFromJNI(JNIEnv *env, jclass type) {
     return (*env).NewStringUTF(RS2_API_VERSION_STR);
 }
-
-//rs2::context ctx;
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_example_realsense_1native_1example_MainActivity_nGetCamerasCountFromJNI(JNIEnv *env, jclass type) {
