@@ -192,13 +192,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           android:layout_height="wrap_content"
           android:layout_width="wrap_content"
           android:layout_alignParentBottom="true"
-          android:layout_toStartOf="@+id/textCamTrackerStatus"
+          android:layout_toStartOf="@+id/textLrsVersion"
           android:text="" />
 
           <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"/>
+
+        <TextView
+          android:id="@+id/textLrsVersion"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@+id/textCamTrackerStatus"
+          android:layout_alignParentBottom="true"
+          android:paddingRight="16px"
+          android:text="0.0.0" />
 
         <TextView
           android:id="@+id/textCamTrackerStatus"

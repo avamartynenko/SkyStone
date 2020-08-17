@@ -115,17 +115,18 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
             pose_data.rotation.z,
             pose_data.rotation.w,
 
-            pose_data.angular_velocity.x,
+            pose_data.angular_velocity.x, // 13
             pose_data.angular_velocity.y,
             pose_data.angular_velocity.z,
 
-            pose_data.angular_acceleration.x,
+            pose_data.angular_acceleration.x, //16
             pose_data.angular_acceleration.y,
             pose_data.angular_acceleration.z,
 
             // actual values are unsigned int, we will use float to simplify passing data back and forth
-            (float) pose_data.tracker_confidence,
-            (float) pose_data.mapper_confidence
+            (float) pose_data.tracker_confidence, //19
+            (float) pose_data.mapper_confidence,
+            (float) f.get_frame_number()
     };
     int pose_elements = sizeof(pose_data_array)/ sizeof(pose_data_array[0]);
     result = env->NewFloatArray(pose_elements);
@@ -260,7 +261,8 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
             yaw,
             // actual values are unsigned int, we will use float to simplify passing data back and forth
             (float) pose_data.tracker_confidence,
-            (float) pose_data.mapper_confidence
+            (float) pose_data.mapper_confidence,
+            (float) f.get_frame_number()
     };
 
     int pose_elements = sizeof(pose_data_array)/ sizeof(pose_data_array[0]);

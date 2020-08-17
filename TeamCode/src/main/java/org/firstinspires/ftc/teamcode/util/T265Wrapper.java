@@ -25,9 +25,10 @@ public class T265Wrapper {
     final public static int ixX = 0;
     final public static int ixY = 1;
     final public static int ixYaw = 2;
+    final public static int ixFrameNumber = 5;
 
     public T265Wrapper() {
-        offsetX = 7.64f;
+        offsetX = 7.64f; // robot center relative to camera
         offsetY = 6.22f;
         offsetRadius = (float) sqrt(pow(offsetX, 2) + pow(offsetY, 2));
         offsetYaw = (float) Math.atan2(-offsetY, -offsetX);
@@ -98,6 +99,10 @@ public class T265Wrapper {
 
     public int getMapperConfidence() {
         return (int) cameraPose[4];
+    }
+
+    public long getFrameNumber() {
+        return (long) cameraPose[ixFrameNumber];
     }
 
     public String getTrackerConfidenceText() {

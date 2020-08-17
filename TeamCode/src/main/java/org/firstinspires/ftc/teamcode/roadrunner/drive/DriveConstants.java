@@ -31,7 +31,7 @@ public class DriveConstants {
      * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
-    public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(20, 5, 1);
+    public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(20 , 5, 1);
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -91,7 +91,7 @@ public class DriveConstants {
      * TODO: find falues for maxJerk and maxAnglJerk
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            45.0, 45.0, 2.0,
+            45.0, 45.0, 2.5,
             Math.toRadians(180.0), Math.toRadians(180.0), 2.0
     );
 

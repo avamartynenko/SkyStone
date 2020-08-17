@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.Localizer;
 
+import org.jetbrains.annotations.Nullable;
+
 @Config
 public class T265Localizer implements Localizer {
     private static final String TAG = "T265Localizer";
@@ -39,14 +41,14 @@ public class T265Localizer implements Localizer {
 
     @Override
     public void setPoseEstimate(Pose2d newPose) {
-        if(newPose.getX() != 0 || newPose.getY() != 0 || newPose.getHeading() != 0) {
+        if(newPose.getHeading() != 0) {
             Log.wtf(TAG, String.format("setPoseEstimate: x=%.2f y=%.2f yaw=%.1f°", newPose.getX(), newPose.getY(), newPose.getHeading()));
-            throw new IllegalArgumentException("newPose with non zero arguments is not supported");
+            throw new IllegalArgumentException("newPose with non zero heading is not supported");
         }
 
         localizer.refreshPoseData();
         //Log.d(TAG, String.format("setPoseEstimate: localizer robot ix x=%.2f y=%.2f yaw=%.1f°", localizer.getRobotX(), localizer.getRobotY(), Math.toDegrees(localizer.getYaw())));
-        _poseEstimateCorrection = new Pose2d(localizer.getRobotX(), localizer.getRobotY(), localizer.getYaw());
+        _poseEstimateCorrection = new Pose2d(localizer.getRobotX() - newPose.getX(), localizer.getRobotY() - newPose.getY(), localizer.getYaw());
     }
 
     @Override
@@ -59,5 +61,11 @@ public class T265Localizer implements Localizer {
         while(Yaw > Math.PI)
             Yaw -= Math.PI *2;
         return Yaw;
+    }
+
+    @Nullable
+    @Override
+    public Pose2d getPoseVelocity() {
+        return null;
     }
 }

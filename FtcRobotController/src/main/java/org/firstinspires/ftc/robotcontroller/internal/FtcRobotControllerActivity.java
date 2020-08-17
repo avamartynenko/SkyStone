@@ -202,12 +202,14 @@ public class FtcRobotControllerActivity extends Activity
         TextView tv = (TextView) findViewById(R.id.textTrackingCamera);
         TextView tvMapper = (TextView) findViewById(R.id.textCamMapperStatus);
         TextView tvTracker = (TextView) findViewById(R.id.textCamTrackerStatus);
+        TextView tvVersion = (TextView) findViewById(R.id.textLrsVersion);
 
         try {
           float[] poseData = nGetCameraPoseXYYaw();
           DecimalFormat df = new DecimalFormat("0.00");
           String position = "[X=" + df.format(poseData[0]) + " Y=" + df.format(poseData[1]) + " Yaw=" + df.format(poseData[2]) + "]";
           tv.setText(position);
+          tvVersion.setText(nGetLibrealsenseVersionFromJNI());
           tvTracker.setTextColor(getConfidenceColor(poseData[3]));
           tvMapper.setTextColor(getConfidenceColor(poseData[4]));
         }
@@ -1002,4 +1004,5 @@ public class FtcRobotControllerActivity extends Activity
     private static synchronized native void nStartStream();
     private static synchronized native void nStopStream();
     private static native float[] nGetCameraPoseXYYaw();
+    private static native String nGetLibrealsenseVersionFromJNI();
 }

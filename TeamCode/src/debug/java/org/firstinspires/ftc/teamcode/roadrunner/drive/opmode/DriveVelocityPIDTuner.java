@@ -40,7 +40,7 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
 @Config
 @TeleOp(name="RR Util: 2a DriveVelocityPIDTuner", group = "drive")
 public class DriveVelocityPIDTuner extends LinearOpMode {
-    public static double DISTANCE = 72;
+    public static double DISTANCE = 72; // inches
 
     private static final String PID_VAR_NAME = "VELO_PID";
 
