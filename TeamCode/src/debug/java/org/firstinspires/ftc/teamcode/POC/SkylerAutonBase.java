@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.POC;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.hardware.motors.*;
+import com.arcrobotics.ftclib.hardware.motors.SimpleMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +12,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.util.T265Wrapper;
 
 @Config
-@Autonomous(name="POC: Drive to XY test", group="Util")
+@Disabled
+@Autonomous(name="POC: Drive to XY test - Spin Motors", group="Util")
 public class SkylerAutonBase extends LinearOpMode {
     @Override
     public void runOpMode() {
@@ -47,40 +48,25 @@ public class SkylerAutonBase extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            while (/*et.milliseconds() < 1000*/ location[0] - startX < 50) {
-                location = localizer.refreshPoseData();
+            bR.set(.0);
+            fL.set(.25);
+            sleep(500);
+            fL.set(.0);
+            fR.set(.25);
+            sleep(500);
+            fR.set(.0);
+            bL.set(.25);
+            sleep(500);
+            bL.set(.0);
+            bR.set(.25);
+            sleep(500);
 
-                packet.put("x", location[0] - startX);
-                packet.put("y", location[1] - startY);
-                dashboard.sendTelemetryPacket(packet);
-                dt.driveRobotCentric(0, 1, 0);
-            }
+/*            fL.set(-.25);
+            fR.set(-.25);
+            bL.set(-.25);
+            bR.set(-.25);
 
-            et.reset();
-            while (/*et.milliseconds() < 1000*/ location[0] - startX > 0) {
-                location = localizer.refreshPoseData();
-                telemetry.addData("x", location[0] - startX);
-                telemetry.addData("y", location[1] - startY);
-                telemetry.update();
-                dt.driveRobotCentric(0, -1, 0);
-            }
-
-            while (/*et.milliseconds() < 1000*/ location[0] - startX < 0) {
-                location = localizer.refreshPoseData();
-                telemetry.addData("x", location[0] - startX);
-                telemetry.addData("y", location[1] - startY);
-                telemetry.update();
-                dt.driveRobotCentric(0, 1, 0);
-            }
-
-            dt.driveRobotCentric(0, 0, 0);
-
-            location = localizer.refreshPoseData();
-            telemetry.addData("x", location[0] - startX);
-            telemetry.addData("y", location[1] - startY);
-            telemetry.update();
-
-            sleep(5000);
+            sleep(500);*/
 
             /*dt.driveRobotCentric(0, 0, 0);
             sleep(100);
@@ -100,7 +86,6 @@ public class SkylerAutonBase extends LinearOpMode {
             dt.driveRobotCentric(0, 0, 0);
             sleep(100);*/
 
-            return;
         }
     }
 }

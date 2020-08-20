@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.POC;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * TODO: rewrite to query servos names from HW Map instead of hardcoding Skyler's configuration
  */
 
+@Disabled
 @TeleOp(name="Diag: Servo Spin Test", group ="Util")
 public class ServoTest extends LinearOpMode {
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
  */
 
 @Config
+@Disabled
 @TeleOp(name="Util: Arms Positions", group ="Util")
 public class ArmsPositions extends LinearOpMode {
     public static double collectServo3Position = .4;

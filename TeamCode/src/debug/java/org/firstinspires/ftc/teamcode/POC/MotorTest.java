@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.POC;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  * TODO: rewrite to query motors names from HW Map instead of hardcoding Skyler's configuration
  */
 
+@Disabled
 @TeleOp(name="Diag: Motor Spin Test", group ="Util")
 public class MotorTest extends LinearOpMode {
 
