@@ -18,12 +18,12 @@ static const float meters2inches = 39.3701;
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,     TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,    TAG, __VA_ARGS__)
 
+//rs2::context ctx;
+
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_org__realsense_1native_1example_MainActivity_nGetLibrealsenseVersionFromJNI(JNIEnv *env, jclass type) {
+Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_nGetLibrealsenseVersionFromJNI(JNIEnv *env, jclass type) {
     return (*env).NewStringUTF(RS2_API_VERSION_STR);
 }
-
-//rs2::context ctx;
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_example_realsense_1native_1example_MainActivity_nGetCamerasCountFromJNI(JNIEnv *env, jclass type) {
@@ -81,60 +81,61 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
 
     try {
         rs2::frameset frames;
-    //auto frames = pipe.wait_for_frames(&fs);
+        //auto frames = pipe.wait_for_frames(&fs);
         if(!pipe.try_wait_for_frames(&frames)) {
             LOGE("nGetCameraPoseData: try_wait_for_frames fail");
             return NULL;
         }
-    // Get a frame from the pose stream
-    auto f = frames.first_or_default(RS2_STREAM_POSE);
-    // Cast the frame to pose_frame and get its data
-    rs2_pose pose_data;
+        // Get a frame from the pose stream
+        auto f = frames.first_or_default(RS2_STREAM_POSE);
+        // Cast the frame to pose_frame and get its data
+        rs2_pose pose_data;
 
-    {
+        {
 //        std::lock_guard<std::mutex> lock(g_data_mutex);
-        pose_data = f.as<rs2::pose_frame>().get_pose_data();
-    }
+            pose_data = f.as<rs2::pose_frame>().get_pose_data();
+        }
 
-    jfloatArray result;
-    float pose_data_array[] = {
-            pose_data.translation.x,    // 0
-            pose_data.translation.y,
-            pose_data.translation.z,
+        jfloatArray result;
+        float pose_data_array[] = {
+                pose_data.translation.x,    // 0
+                pose_data.translation.y,
+                pose_data.translation.z,
 
-            pose_data.velocity.x,       // 3
-            pose_data.velocity.y,
-            pose_data.velocity.z,
+                pose_data.velocity.x,       // 3
+                pose_data.velocity.y,
+                pose_data.velocity.z,
 
-            pose_data.acceleration.x,   // 6
-            pose_data.acceleration.y,
-            pose_data.acceleration.z,
+                pose_data.acceleration.x,   // 6
+                pose_data.acceleration.y,
+                pose_data.acceleration.z,
 
-            pose_data.rotation.x,       // 9
-            pose_data.rotation.y,
-            pose_data.rotation.z,
-            pose_data.rotation.w,
+                pose_data.rotation.x,       // 9
+                pose_data.rotation.y,
+                pose_data.rotation.z,
+                pose_data.rotation.w,
 
-            pose_data.angular_velocity.x,
-            pose_data.angular_velocity.y,
-            pose_data.angular_velocity.z,
+                pose_data.angular_velocity.x, // 13
+                pose_data.angular_velocity.y,
+                pose_data.angular_velocity.z,
 
-            pose_data.angular_acceleration.x,
-            pose_data.angular_acceleration.y,
-            pose_data.angular_acceleration.z,
+                pose_data.angular_acceleration.x, //16
+                pose_data.angular_acceleration.y,
+                pose_data.angular_acceleration.z,
 
-            // actual values are unsigned int, we will use float to simplify passing data back and forth
-            (float) pose_data.tracker_confidence,
-            (float) pose_data.mapper_confidence
-    };
-    int pose_elements = sizeof(pose_data_array)/ sizeof(pose_data_array[0]);
-    result = env->NewFloatArray(pose_elements);
-    if (result == NULL) {
-        return NULL; /* out of memory error thrown */
-    }
+                // actual values are unsigned int, we will use float to simplify passing data back and forth
+                (float) pose_data.tracker_confidence, //19
+                (float) pose_data.mapper_confidence,
+                (float) f.get_frame_number()
+        };
+        int pose_elements = sizeof(pose_data_array)/ sizeof(pose_data_array[0]);
+        result = env->NewFloatArray(pose_elements);
+        if (result == NULL) {
+            return NULL; /* out of memory error thrown */
+        }
 
-    env->SetFloatArrayRegion(result, 0, pose_elements, pose_data_array);
-    return result;
+        env->SetFloatArrayRegion(result, 0, pose_elements, pose_data_array);
+        return result;
     }
     catch(const rs2::wrong_api_call_sequence_error& ex) {
         LOGE("Unable to get frames");
@@ -260,7 +261,8 @@ Java_org_firstinspires_ftc_robotcontroller_internal_FtcRobotControllerActivity_n
             yaw,
             // actual values are unsigned int, we will use float to simplify passing data back and forth
             (float) pose_data.tracker_confidence,
-            (float) pose_data.mapper_confidence
+            (float) pose_data.mapper_confidence,
+            (float) f.get_frame_number()
     };
 
     int pose_elements = sizeof(pose_data_array)/ sizeof(pose_data_array[0]);

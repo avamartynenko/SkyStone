@@ -4,7 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.hardware.motors.MotorImplEx;
+import com.arcrobotics.ftclib.hardware.motors.*;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -21,10 +21,11 @@ public class SkylerAutonBase extends LinearOpMode {
         telemetry = dashboard.getTelemetry();
         T265Wrapper localizer = new T265Wrapper();
 
-        MotorImplEx fL = new MotorImplEx(hardwareMap, "frontLeft", 435);
-        MotorImplEx fR = new MotorImplEx(hardwareMap,"frontRight", 435);
-        MotorImplEx bL = new MotorImplEx(hardwareMap,"backLeft", 435);
-        MotorImplEx bR = new MotorImplEx(hardwareMap,"backRight", 435);
+
+        SimpleMotorEx fL = new SimpleMotorEx("frontLeft", hardwareMap, 435);
+        SimpleMotorEx fR = new SimpleMotorEx("frontRight", hardwareMap, 435);
+        SimpleMotorEx bL = new SimpleMotorEx("backLeft", hardwareMap, 435);
+        SimpleMotorEx bR = new SimpleMotorEx("backRight", hardwareMap, 435);
 
         bL.setInverted(true);
         bR.setInverted(true);
