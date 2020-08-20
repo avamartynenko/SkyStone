@@ -24,6 +24,7 @@ Thumbs.db
 .gradle
 .project
 .settings
+.classpath
 build/
 
 *ASUS_PC_01*
