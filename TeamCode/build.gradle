@@ -16,4 +16,5 @@ apply from: '../build.common.gradle'
 
 dependencies {
     implementation 'com.arcrobotics:ftclib:1.0.0'
+    implementation project(':acmerobotics')
 }

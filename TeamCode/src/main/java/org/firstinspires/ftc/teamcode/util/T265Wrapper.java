@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
 
 import static java.lang.Math.*;
+import static java.lang.Thread.sleep;
 
 public class T265Wrapper {
     private float[] cameraPose;
@@ -24,9 +25,10 @@ public class T265Wrapper {
     final public static int ixX = 0;
     final public static int ixY = 1;
     final public static int ixYaw = 2;
+    final public static int ixFrameNumber = 5;
 
     public T265Wrapper() {
-        offsetX = 7.64f;
+        offsetX = 7.64f; // robot center relative to camera
         offsetY = 6.22f;
         offsetRadius = (float) sqrt(pow(offsetX, 2) + pow(offsetY, 2));
         offsetYaw = (float) Math.atan2(-offsetY, -offsetX);
@@ -99,6 +101,10 @@ public class T265Wrapper {
         return (int) cameraPose[4];
     }
 
+    public long getFrameNumber() {
+        return (long) cameraPose[ixFrameNumber];
+    }
+
     public String getTrackerConfidenceText() {
         switch (getTrackerConfidence()) {
             case 3:
@@ -125,8 +131,9 @@ public class T265Wrapper {
         }
     }
 
-    public void restart() {
+    public void restart() throws InterruptedException {
         stopStream();
+        sleep(1000);
         startStream();
     }
 }
