@@ -22,9 +22,12 @@ import org.firstinspires.ftc.teamcode.util.T265Wrapper;
 
 import org.firstinspires.ftc.teamcode.roadrunner.util.DashboardUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Config
 @Autonomous(name="POC: Pure Pursuit", group="POC")
-public class SkylerPR extends LinearOpMode {
+public class PurePursuit extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -55,47 +58,47 @@ public class SkylerPR extends LinearOpMode {
 
         // With X and Y coordinates.
         Waypoint p1 = new StartWaypoint(0, 0);
-        //Waypoint p2 = new GeneralWaypoint(10, startY + 3, movSpeed, turnSpeed, 3);
-        /*Waypoint p3 = new GeneralWaypoint(startX + 20, startY - 3, movSpeed, turnSpeed, 3);
+        /*Waypoint p2 = new GeneralWaypoint(10, startY + 3, movSpeed, turnSpeed, 3);
+        Waypoint p3 = new GeneralWaypoint(startX + 20, startY - 3, movSpeed, turnSpeed, 3);
         Waypoint p4 = new GeneralWaypoint(startX + 30, startY + 3, movSpeed, turnSpeed, 3);*/
-        Waypoint p5 = new EndWaypoint(startX + 40, startY, 0, movSpeed, turnSpeed, 3, 3, .5);
+        Waypoint p5 = new EndWaypoint(startX + 40, startY, 0, movSpeed, turnSpeed, 5, 3, .5);
 
-        if(true) {
+        // we are using the waypoints we made in the above examples
+        Path m_path = new Path(p1, p5);
+        m_path.init(); // initialize the path
 
-            // we are using the waypoints we made in the above examples
-            Path m_path = new Path(p1, p5);
-            m_path.init(); // initialize the path
+        List<Pose2d> poseHistory = new ArrayList<>();
 
-            while (opModeIsActive()) {
-                while (!m_path.isFinished() && opModeIsActive()) {
-                    packet = new TelemetryPacket();
-                    Canvas fieldOverlay = packet.fieldOverlay();
+        if (opModeIsActive()) {
+            while (!m_path.isFinished() && opModeIsActive()) {
+                if (m_path.timedOut())
+                    throw new InterruptedException("Timed out");
 
-                    if (m_path.timedOut())
-                        throw new InterruptedException("Timed out");
+                localizer.update();
+                Pose2d currentPose = localizer.getPoseEstimate();
+                poseHistory.add(currentPose);
 
-                    localizer.update();
-                    Pose2d currentPose = localizer.getPoseEstimate();
+                // return the motor speeds
+                double speeds[] = m_path.loop(currentPose.getX(), currentPose.getY(), currentPose.getHeading());
+                dt.driveRobotCentric(speeds[0], speeds[1], speeds[2]);
 
-                    packet.put("x", currentPose.getX());
-                    packet.put("y", currentPose.getY());
-                    double speeds[] = m_path.loop(currentPose.getX(), currentPose.getY(), currentPose.getHeading());
+                // telemetry update
+                packet = new TelemetryPacket();
+                Canvas fieldOverlay = packet.fieldOverlay();
+                packet.put("x", currentPose.getX());
+                packet.put("y", currentPose.getY());
+                packet.put("yaw", currentPose.getHeading());
+                packet.put("strafeSpeed", speeds[0]);
+                packet.put("forwardSpeed", speeds[1]);
+                packet.put("turnSpeed", speeds[2]);
 
-                    packet.put("speed 0", speeds[0]);
-                    packet.put("speed 1", speeds[1]);
-                    packet.put("speed 2", speeds[2]);
-
-                    dashboard.sendTelemetryPacket(packet);
-
-                    // return the motor speeds
-
-                    dt.driveRobotCentric(speeds[0], speeds[1], speeds[2]);
-
-                    DashboardUtil.drawRobot(fieldOverlay, currentPose);
-                }
-
-                dt.stop();
+                DashboardUtil.drawPath(fieldOverlay, m_path);
+                DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
+                DashboardUtil.drawRobot(fieldOverlay, currentPose);
+                dashboard.sendTelemetryPacket(packet);
             }
+
+            dt.stop();
         }
     }
 }

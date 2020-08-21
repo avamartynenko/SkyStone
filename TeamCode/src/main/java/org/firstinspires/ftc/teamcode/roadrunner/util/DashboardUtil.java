@@ -19,6 +19,8 @@ public class DashboardUtil {
 
 
     public static void drawPoseHistory(Canvas canvas, List<Pose2d> poseHistory) {
+        canvas.setStroke("blue");
+        canvas.setStrokeWidth(1);
         double[] xPoints = new double[poseHistory.size()];
         double[] yPoints = new double[poseHistory.size()];
         for (int i = 0; i < poseHistory.size(); i++) {
