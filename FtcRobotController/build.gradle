@@ -46,7 +46,7 @@ configurations {
 }
 
 dependencies {
-    def version = '2.35.2'
+    def version = '2.38.1'
     downloadHeader 'com.intel.realsense:librealsense:' + version + '@zip'
     debugImplementation(name: 'librealsense-debug', ext: 'aar')
     releaseImplementation(name: 'librealsense-release', ext: 'aar')
